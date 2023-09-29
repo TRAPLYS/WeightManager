@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>体重管理</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .material-icons-round {
+            vertical-align: sub;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        table,
+        tr,
+        th,
+        td {
+            border-collapse: collapse;
+        }
+
+        thead {
+            position: sticky;
+            top: 8px;
+            height: 40px;
+            background: #599e77;
+            color: #FFF;
+        }
+
+        #DataArea tr {
+            transition: 0.1s;
+            cursor: default;
+        }
+
+        tbody tr:nth-child(odd) {
+            background: #e9f3ed;
+        }
+
+        #DataArea tr:active {
+            background: #f3faf6;
+        }
+
+        #DataArea tr:nth-child(odd):active {
+            background: #d9e5de;
+        }
+
+        .BtnWrap {
+            font-size: 0;
+            text-align: center;
+
+            padding: 10px 5px;
+        }
+
+        button {
+            background: #599e77;
+            color: #FFF;
+            border: none;
+            padding: 8px;
+            font-size: 17px;
+            border-radius: 5px;
+            transition: 0.1s;
+            margin: 3px;
+        }
+
+        button:active {
+            background: #4f8064;
+        }
+
+        input,
+        textarea {
+            border-radius: 4px;
+            font-size: 16px;
+            padding: 5px;
+            border: solid 2px #599e77;
+            margin: 3px 5px;
+
+        }
+
+        input:focus,
+        textarea:focus {
+            background: #f2f8f5;
+            outline: none;
+        }
+
+        #dataTable {
+            border-radius: 5px;
+            margin: 8px;
+            width: calc(100% - 16px);
+        }
+
+        thead th {
+            border: none;
+            font-weight: normal;
+            font-size: 18px;
+        }
+
+        #th1 {
+            border-radius: 5px 0 0 5px;
+        }
+
+        #th5 {
+            border-radius: 0 5px 5px 0;
+        }
+
+        #th1,
+        #th2,
+        #th3,
+        #th4 {
+            position: relative;
+        }
+
+        #th1::after,
+        #th2::after,
+        #th3::after,
+        #th4::after {
+            content: "";
+            display: block;
+            background: #FFF;
+            width: 1px;
+            height: 20px;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            margin: auto;
+        }
+
+        tbody td {
+            padding: 3px 5px;
+        }
+
+
+        dialog {
+            background: #FFF;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 4px 4px 4px #599e7743;
+            padding: 0;
+            width: 400px;
+            max-width: 100vw;
+        }
+
+        dialog input {
+            width: 100%;
+        }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        dialog h2 {
+            margin: 0;
+            color: #333;
+            padding: 0 10px 0 0;
+            height: 40px;
+            line-height: 40px;
+            font-size: 20px;
+        }
+
+        #closeDialog {
+            height: 34px;
+            width: 34px;
+            margin: 3px;
+        }
+
+        .dialogContent {
+            padding: 15px 40px;
+        }
+
+        label {
+            display: flex;
+            white-space: nowrap;
+            padding: 5px 0;
+            align-items: center;
+        }
+
+        label span {
+            width: 19px;
+            display: inline-block;
+        }
+
+        textarea {
+            width: 100%;
+        }
+
+        header {
+            background: #599e77;
+            color: #FFF;
+            height: 100px;
+        }
+
+
+        h1 {
+            margin: 0;
+            text-align: center;
+            font-size: 25px;
+        }
+
+        input[type="number"] {
+            text-align: right;
+        }
+
+        .tabContent {
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            display: none;
+        }
+
+        #tabSwitch {
+            font-size: 0;
+            padding: 5px;
+        }
+
+        .activeTabContent {
+            display: block;
+        }
+
+        #tabSwitch button {
+            display: inline-block;
+            vertical-align: top;
+            border: solid 1px #FFF;
+        }
+
+        .activeTabBtn {
+            background: #FFF;
+            color: #599e77;
+        }
+
+        #showDialog {
+            float: right;
+        }
+
+        .activeTabBtn:active {
+            background: #FFF;
+        }
+
+        #graphWrap {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #ex_chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        .noteCell {
+            max-width: 20vw;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .nodata {
+            text-align: center;
+            font-size: 18px;
+            height: 50px;
+        }
+
+        #detailTextEdit {
+            resize: none;
+        }
+
+        #tableWrap {
+            padding: 20px 0;
+            padding: 8px;
+        }
+
+        #tableWrap table {
+            border-radius: 5px;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>体重管理</h1>
+        <div id="tabSwitch">
+            <button class="tabSwitch activeTabBtn material-icons-round" data-target="tableView">table_view</button>
+            <button class="tabSwitch material-icons-round" data-target="graphView">trending_down</button>
+            <button class="tabSwitch material-icons-round" data-target="detailView">manage_search</button>
+            <button id="showDialog"><span class="material-icons-round">addchart</span>体重を記録</button>
+        </div>
+
+    </header>
+
+    <div id="tabContentWrap">
+        <div class="tabContent activeTabContent" id="tableView">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th id="th1">日付</th>
+                        <th id="th2">体重</th>
+                        <th id="th3">身長</th>
+                        <th id="th4">BMI</th>
+                        <th id="th5">備考</th>
+                    </tr>
+                </thead>
+                <tbody id="DataArea">
+                    <td colspan="5">読み込み中</td>
+                </tbody>
+            </table>
+        </div>
+        <div class="tabContent" id="graphView">
+            <div id="graphWrap">
+                <canvas id="ex_chart"></canvas>
+            </div>
+        </div>
+        <div class="tabContent" id="detailView">
+            <div id="tableWrap">
+                <table>
+                    <tr>
+                        <th>最大値</th>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <th>最小値</th>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <th>目標達成率</th>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th>最大値 - 最小値</th>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <th>最大値からの変化</th>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <th>初日からの変化</th>
+                        <td>0</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <template id="tableTemplate">
+        <tr>
+            <td class="dateCell"></td>
+            <td class="weightCell"></td>
+            <td class="heightCell"></td>
+            <td class="BMICell"></td>
+            <td class="noteCell"></td>
+        </tr>
+    </template>
+
+    <dialog id="InputDialog">
+        <h2>
+            <button id="closeDialog">←</button>
+            体重記録画面
+        </h2>
+        <div class="dialogContent">
+            <label>日付<input id="dateInput" type="date"><span></span></label>
+            <label>体重<input id="weightInput" type="number" min="1" max="300" step="0.01" placeholder="50"><span>kg</span></label>
+            <label>身長<input id="heightInput" type="number" min="30" max="300" step="0.01" placeholder="150"><span>cm</span></label>
+            <label><textarea id="detailText" maxlength="200" placeholder="メモ"></textarea></label>
+        </div>
+        <div class="BtnWrap">
+            <button id="setData">記録</button>
+        </div>
+    </dialog>
+    <dialog id="EditDialog">
+        <h2>
+            <button id="closeEditDialog">←</button>
+            情報編集画面
+        </h2>
+        <div class="dialogContent">
+            <label>日付<input id="dateOutput" type="date" disabled></label>
+            <label>体重<input id="weightEdit" type="number" min="1" max="300" step="0.01" placeholder="50"><span>kg</span></label>
+            <label>身長<input id="heightEdit" type="number" min="30" max="300" step="0.01" placeholder="150"><span>cm</span></label>
+            <label><textarea id="detailTextEdit" maxlength="200" placeholder="メモ"></textarea></label>
+        </div>
+        <div class="BtnWrap">
+            <button id="DeleteData">削除</button>
+            <button id="EditData">更新</button>
+        </div>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0"></script>
+
+    <script>
+        var weightData = [];
+        if (localStorage.weightData) weightData = JSON.parse(localStorage.weightData);
+
+        var InputDialog = document.getElementById("InputDialog")
+        var tableTemplate = document.getElementById('tableTemplate');
+
+        var EditDialog = document.getElementById("EditDialog")
+
+        window.addEventListener("load", function () {
+            tableDraw()
+        })
+
+        var ctx = document.getElementById('ex_chart');
+        var ex_chart;
+        var targetData;
+
+        function tableDraw() {
+            if (weightData.length) {
+                document.getElementById("DataArea").innerHTML = ""
+                weightData.forEach(function (elm, index) {
+                    var clone = tableTemplate.content.cloneNode(true);
+
+                    clone.querySelector(".dateCell").innerText = dateEncode(1, elm.date)
+                    clone.querySelector(".weightCell").innerText = elm.weight.toFixed(2) + "kg"
+                    clone.querySelector(".heightCell").innerText = elm.height.toFixed(1) + "cm"
+                    clone.querySelector(".BMICell").innerText = elm.BMI.toFixed(3)
+                    clone.querySelector(".noteCell").innerText = elm.note.replaceAll("\n", " ")
+
+                    clone.querySelector("tr").addEventListener("click", function () {
+                        EditDialog.showModal()
+                        targetData = index
+                        document.getElementById("dateOutput").value = dateEncode(2, elm.date)
+                        document.getElementById("weightEdit").value = elm.weight
+                        document.getElementById("heightEdit").value = elm.height
+                        document.getElementById("detailTextEdit").value = elm.note
+                    })
+
+                    document.getElementById("DataArea").appendChild(clone);
+
+                })
+
+
+
+                if (ex_chart) ex_chart.destroy();
+                var data = {
+                    datasets: [{
+                        label: '体重の推移',
+                        data: weightData.map(function (elm) { return { x: new Date(elm.date), y: elm.weight } }),
+                        borderColor: '#599e77',
+                        lineTension: 0.3
+                    }, {
+                        label: '標準体重上限',
+                        data: weightData.map(function (elm) { return { x: new Date(elm.date), y: 25 * (elm.height / 100) ** 2 } }),
+                        borderColor: '#CCC',
+                        lineTension: 0.3,
+                        fill: '+1'
+                    }, {
+                        label: '標準体重下限',
+                        data: weightData.map(function (elm) { return { x: new Date(elm.date), y: 18 * (elm.height / 100) ** 2 } }),
+                        borderColor: '#CCC',
+                        lineTension: 0.3
+                    }]
+                };
+
+                var options = {
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                displayFormats: {
+                                    day: 'MM/DD'
+                                }
+                            },
+                        }
+                    }
+                };
+
+                ex_chart = new Chart(ctx, {
+                    type: 'line',
+                    data: data,
+                    options: options
+                });
+            } else {
+                document.getElementById("DataArea").innerHTML = '<td colspan="5" class="nodata">データがありません</td>'
+
+            }
+        }
+
+        document.getElementById("showDialog").addEventListener("click", function () {
+            InputDialog.showModal()
+            document.getElementById("dateInput").value = dateEncode(2, new Date())
+        })
+        document.getElementById("closeDialog").addEventListener("click", function () {
+            InputDialog.close()
+        })
+        document.getElementById("setData").addEventListener("click", function () {
+            InputDialog.close()
+
+            dateTmp = new Date(document.getElementById("dateInput").value)
+            heightTmp = Number(document.getElementById("heightInput").value)
+            weightTmp = Number(document.getElementById("weightInput").value)
+            weightData.push({
+                id: weightData.length,
+                date: dateTmp,
+                height: heightTmp,
+                weight: weightTmp,
+                BMI: weightTmp / (heightTmp / 100) ** 2,
+                note: document.getElementById("detailText").value
+            })
+            dataSave()
+            tableDraw()
+        })
+
+        function dataSave() {
+            localStorage.weightData = JSON.stringify(weightData);
+        }
+
+        document.getElementById("EditData").addEventListener("click", function () {
+            weightData[targetData].weight = Number(document.getElementById("weightEdit").value);
+            weightData[targetData].height = Number(document.getElementById("heightEdit").value);
+            weightData[targetData].note = document.getElementById("detailTextEdit").value;
+            tableDraw()
+            dataSave()
+            EditDialog.close()
+        })
+        document.getElementById("DeleteData").addEventListener("click", function () {
+            weightData.splice(targetData, 1)
+            tableDraw()
+            dataSave()
+            EditDialog.close()
+        })
+        document.getElementById("closeEditDialog").addEventListener("click", function () {
+            EditDialog.close()
+        })
+
+        function dateEncode(type, date) {
+            date = new Date(date)
+            var year = String(date.getFullYear()).padStart(4, '0')
+            var month = String(date.getMonth() + 1).padStart(2, '0')
+            var date = String(date.getDate()).padStart(2, '0')
+            switch (type) {
+                case 0:
+                    return month + "/" + date
+                    break;
+                case 1:
+                    return year + "/" + month + "/" + date
+                    break;
+                case 2:
+                    return year + "-" + month + "-" + date
+                    break;
+            }
+        }
+
+        document.querySelectorAll(".tabSwitch").forEach(function (elm) {
+            elm.addEventListener("click", function () {
+                document.querySelector(".activeTabContent").classList.remove("activeTabContent")
+                document.getElementById(this.dataset.target).classList.add("activeTabContent")
+                document.querySelector(".activeTabBtn").classList.remove("activeTabBtn")
+                this.classList.add("activeTabBtn")
+            })
+        })
+    </script>
+</body>
+
+</html>
